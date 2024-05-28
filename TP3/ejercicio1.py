@@ -33,6 +33,11 @@ print(U.shape, S.shape, VT.shape)
 Z = U@S
 print(Z.shape)
 
+def similarity_matrix(X, sigma):
+    distances = squareform(pdist(X, 'euclidean'))
+    k = np.exp(-distances**2/(2*sigma**2))
+    return k
+
 for compression in compression_values:
     
     #Matrix U
@@ -68,4 +73,20 @@ for compression in compression_values:
     plt.title('Matrix XV with compression = ' + str(compression))
     plt.show()
 
+
+    sigma = 1.0
     
+    # Calculate the similarity matrix
+    similarity = similarity_matrix(XV_hat, sigma)
+    
+    # Display the similarity matrix
+    plt.figure(figsize=(8, 6))
+    plt.imshow(similarity, cmap='coolwarm')
+    plt.colorbar()
+    plt.title('Similarity Matrix with compression = ' + str(compression))
+    plt.show()
+
+    
+
+
+
