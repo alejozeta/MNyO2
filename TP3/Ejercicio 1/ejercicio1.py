@@ -10,16 +10,33 @@ def similarity_matrix(X, sigma):
     return k
 
 
-compression_values = [2, 6, 10, 206]
+compression_values = [2, 6, 10]
 j = 0
-# Cargar los datos
-X = pd.read_csv('dataset01.csv').values 
-Y = np.loadtxt('y1.txt')
+# Read the CSV file into a pandas DataFrame
+df = pd.read_csv('Ejercicio 1/dataset01.csv')
+
+# Remove the first row (column names)
+df = df.iloc[1:]
+
+# Remove the first column (row numbers)
+df = df.iloc[:, 1:]
+
+# Convert the remaining columns to float
+df = df.astype(float)
+
+# Convert the DataFrame to a numpy array
+X = df.values
+compression_values += [X.shape[1]]
 
 U,S,VT = np.linalg.svd(X, full_matrices=False)
 print(U.shape, S.shape, VT.shape)
 Z = U@S
 print(Z.shape)
+
+def similarity_matrix(X, sigma):
+    distances = squareform(pdist(X, 'euclidean'))
+    k = np.exp(-distances**2/(2*sigma**2))
+    return k
 
 for compression in compression_values:
     
@@ -56,4 +73,20 @@ for compression in compression_values:
     plt.title('Matrix XV with compression = ' + str(compression))
     plt.show()
 
+
+    sigma = 1.0
     
+    # Calculate the similarity matrix
+    similarity = similarity_matrix(XV_hat, sigma)
+    
+    # Display the similarity matrix
+    plt.figure(figsize=(8, 6))
+    plt.imshow(similarity, cmap='coolwarm')
+    plt.colorbar()
+    plt.title('Similarity Matrix with compression = ' + str(compression))
+    plt.show()
+
+    
+
+
+
