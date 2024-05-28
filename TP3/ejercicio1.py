@@ -10,11 +10,23 @@ def similarity_matrix(X, sigma):
     return k
 
 
-compression_values = [2, 6, 10, 206]
+compression_values = [2, 6, 10]
 j = 0
-# Cargar los datos
-X = pd.read_csv('dataset01.csv').values 
-Y = np.loadtxt('y1.txt')
+# Read the CSV file into a pandas DataFrame
+df = pd.read_csv('dataset01.csv')
+
+# Remove the first row (column names)
+df = df.iloc[1:]
+
+# Remove the first column (row numbers)
+df = df.iloc[:, 1:]
+
+# Convert the remaining columns to float
+df = df.astype(float)
+
+# Convert the DataFrame to a numpy array
+X = df.values
+compression_values += [X.shape[1]]
 
 U,S,VT = np.linalg.svd(X, full_matrices=False)
 print(U.shape, S.shape, VT.shape)
