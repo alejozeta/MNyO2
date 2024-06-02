@@ -9,6 +9,15 @@ images = ['datasets_imgs/img00.jpeg', 'datasets_imgs/img01.jpeg', 'datasets_imgs
             'datasets_imgs/img12.jpeg', 'datasets_imgs/img13.jpeg', 'datasets_imgs/img14.jpeg', 'datasets_imgs/img15.jpeg', 
             'datasets_imgs/img16.jpeg', 'datasets_imgs/img17.jpeg', 'datasets_imgs/img18.jpeg']
 
+# Mostrar imágenes originales
+plt.figure(figsize=(10, 5))
+for i in range(len(images)):
+    plt.subplot(4, 5, i+1)
+    plt.imshow(imread(images[i]), cmap='gray')
+    plt.axis('off')
+plt.suptitle('Original images')
+plt.show()
+
 # Valores de compresión
 compression_values = [2, 6, 10]
 
@@ -62,3 +71,4 @@ for d in compression_values:
     plt.colorbar()
     plt.title(f'Similarity Matrix for d = {d}')
     plt.show()
+
