@@ -72,3 +72,7 @@ for d in compression_values:
     plt.title(f'Similarity Matrix for d = {d}')
     plt.show()
 
+# 2.4
+images_2 = ['datasets_imgs_02/img00.jpeg', 'datasets_imgs_02/img01.jpeg', 'datasets_imgs_02/img02.jpeg', 'datasets_imgs_02/img03.jpeg', 
+            'datasets_imgs_02/img04.jpeg', 'datasets_imgs_02/img05.jpeg', 'datasets_imgs_02/img06.jpeg', 'datasets_imgs_02/img07.jpeg']
+
