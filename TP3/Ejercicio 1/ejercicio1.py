@@ -21,7 +21,7 @@ df = df.astype(float)
 # Convert the DataFrame to a numpy array
 X = df.values
 compression_values += [X.shape[1]]
-print(X.shape[1])
+
 Y = np.loadtxt('Ejercicio 1/y1.txt')
 
 
@@ -30,9 +30,8 @@ X_mean = np.mean(X, axis=0)
 X_centered = X - X_mean
 
 U,S,VT = np.linalg.svd(X_centered, full_matrices=False)
-print(U.shape, S.shape, VT.shape)
-Z = U@S
-print(Z.shape)
+
+
 xyz = np.zeros((X.shape[0],3))
 for i in range(X.shape[0]):
     xyz[i,0] = VT[0,:]@X_centered[i,:]
@@ -57,26 +56,21 @@ plt.title('3D plot of the data')
 plt.show()
 
 
-
-
-
-
 def similarity_matrix(X, sigma):
     distances = squareform(pdist(X, 'euclidean'))
     k = np.exp(-distances**2/(2*sigma**2))
     return k
 
+def PCA(U, S, d):
+    Sd = np.diag(S[:d])
+    Ud = U[:, :d]
+    Z = np.dot(Ud, Sd)
+    return Sd, Ud, Z
+
 for compression in compression_values:
-    
-    #Matrix U
-    U_hat = U[:,:compression]
-    #Matrix S
-    S_hat = np.diag(S[:compression])
-    
-    # VT matrix
-    VT_hat = VT[:compression, :]
-    #Matrix XV 
-    XV_hat = U_hat @ S_hat 
+    VT_hat = VT[:compression,:]
+    # Perform PCA
+    S_hat, U_hat, XV_hat = PCA(U, S, compression)
 
     if compression == 206:
 
@@ -84,30 +78,10 @@ for compression in compression_values:
         #Singular values plot:
         plt.figure(figsize=(8,6))
         plt.bar(doms,S[:compression])
+        plt.title('Singular values plot of the full matrix')
+        plt.ylabel('Singular value')
+        plt.xlabel('Singular value dimension')
         plt.show()
-
-    
-    # plt.figure(figsize=(8, 6))
-    # plt.subplot(2,2,1)
-    # #Heatmap of matrixU
-    # sns.heatmap(U_hat, cmap='coolwarm', center=0)
-    # plt.title('Matrix U with compression = ' + str(compression))
-    # #Plot the matrix S
-    # # plt.figure(figsize=(8, 6))
-    # plt.subplot(2,2,2)
-    # plt.imshow(S_hat, cmap='coolwarm')
-    # plt.colorbar()
-    # plt.title('Matrix S with compression = ' + str(compression))
-    # plt.subplot(2,2,3)
-    # # Heatmap of matrix VT
-    # sns.heatmap(VT_hat, cmap='coolwarm', center=0)
-    # plt.title('Matrix VT with compression = ' + str(compression))
-    # # plt.show()
-    # plt.subplot(2,2,4)
-    # # Heatmap of matrix XV
-    # sns.heatmap(XV_hat, cmap='coolwarm', center=0)
-    # plt.title('Matrix XV with compression = ' + str(compression))
-    # plt.show()
 
 
     sigma = 1.0
@@ -122,15 +96,20 @@ for compression in compression_values:
     plt.title('Similarity Matrix with compression = ' + str(compression))
     plt.show()
 
-    U,S,VT = np.linalg.svd(X_centered, full_matrices=False)
-    print(U.shape, S.shape, VT.shape)
-    Z = U@S
-    print(Z.shape)
+
+
     xyz = np.zeros((X.shape[0],3))
     for i in range(X.shape[0]):
         xyz[i,0] = VT[0,:]@X_centered[i,:]
         xyz[i,1] = VT[1,:]@X_centered[i,:]
         xyz[i,2] = VT[2,:]@X_centered[i,:]
+
+
+    # xyz = np.zeros((X.shape[0],3))
+    # for i in range(X.shape[0]):
+    #     xyz[i,0] = VT[0,:]@X_centered[i,:]
+    #     xyz[i,1] = VT[1,:]@X_centered[i,:]
+    #     xyz[i,2] = VT[2,:]@X_centered[i,:]
 
 
 
@@ -148,8 +127,4 @@ for compression in compression_values:
 
     # Show the plot
     plt.show()
-
-
-
-
 

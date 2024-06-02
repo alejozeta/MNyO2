@@ -1,0 +1,90 @@
+\documentclass[12pt,a4]{article} %[font size, tamano de hoja]{Tipo de documento}
+
+\usepackage[left=1.8cm,right=1.8cm,top=32mm,columnsep=20pt]{geometry}
+
+\usepackage[utf8]{inputenc} %Formato de codificación
+\usepackage[spanish, es-tabla, es-nodecimaldot]{babel}
+\usepackage{amsmath} %paquete para escribir ecuaciones matemáticas
+\usepackage{float} %Para posicionar figuras
+\usepackage{graphicx} %Para poder poner figuras
+\usepackage{hyperref} %Permite usar hipervínculos 
+\usepackage{multicol} %Para hacer doble columna
+\usepackage[sorting=none]{biblatex} %Imports biblatex package. To cite use \cite{reference_label}
+\addbibresource{tp2.bib} %Import the bibliography file
+
+
+
+\title{Análisis de Reducción de Dimensionalidad y Compresión de Imágenes utilizando Descomposición de Valores Singulares\\
+
+
+\vspace{20mm}
+
+ Métodos Numéricos y Optimización\\
+ Trabajo práctico N$^{\circ}$3\\
+}
+
+\author{Timoteo Menceyra y Alejo Zimmermann\\ [2mm] %\\ para nueva línea
+\small Universidad de San Andrés, Buenos Aires, Argentina}
+\date{1er Semestre 2024}
+% Tamanos de letra: 
+% \tiny	
+% \scriptsize
+% \footnotesize
+% \small	
+% \normalsize	
+% \large	
+% \Large	
+% \LARGE	
+% \huge	
+% \Huge
+
+
+%Todo lo que está antes de begin{document} es el preámbulo
+\begin{document}
+\vspace{1cm} % Ajusta la distancia vertical entre la fecha y la imagen
+
+
+
+\maketitle
+% \begin{center}
+% \includegraphics[width=5cm]{logoUdesa.png} % Ajusta la ruta y el tamaño de la imagen
+% \end{center}
+
+
+\begin{abstract}
+Este informe explora la aplicación de la Descomposición de Valores Singulares (SVD) para la reducción de dimensionalidad y compresión de imágenes. Se analizan dos casos: reducción de dimensionalidad de un conjunto de datos multidimensional y compresión de imágenes. En el primer caso, se evalúa el impacto de diferentes dimensiones reducidas en la preservación de similitud entre muestras y el rendimiento de predicción lineal. En el segundo, se estudia la calidad de reconstrucción de imágenes comprimidas y la similitud entre imágenes en espacios de baja dimensión. Los resultados resaltan la eficacia de SVD como técnica para reducción de dimensionalidad y compresión de datos.\\
+\vspace{2mm}
+\end{abstract}
+
+
+\begin{multicols}{2}
+\raggedcolumns
+
+\section{Introducción}
+La Descomposición de Valores Singulares (SVD) es una técnica fundamental en el análisis de datos y procesamiento de señales. Esta descomposición matricial permite factorizar una matriz en tres componentes: matrices ortogonales y una matriz diagonal de valores singulares. La SVD tiene numerosas aplicaciones, incluyendo la reducción de dimensionalidad y la compresión de datos.
+La reducción de dimensionalidad es un proceso crucial en el análisis de conjuntos de datos de alta dimensión. Estos conjuntos a menudo contienen redundancias y ruido, lo que dificulta su visualización e interpretación. La SVD permite proyectar los datos a un espacio de dimensión reducida, preservando la mayor cantidad posible de información relevante y facilitando el análisis y la visualización de patrones subyacentes.
+Por otro lado, la compresión de imágenes es una tarea fundamental en el procesamiento de imágenes digitales. Las imágenes digitales suelen requerir una gran cantidad de espacio de almacenamiento y ancho de banda para su transmisión. La SVD ofrece una técnica eficiente para comprimir imágenes, reduciendo su tamaño sin comprometer significativamente la calidad visual.
+En este informe, se exploran dos casos de estudio que aprovechan la potencia de la SVD. El primero se centra en la reducción de dimensionalidad de un conjunto de datos multidimensional, analizando el impacto de diferentes dimensiones reducidas en la preservación de similitud entre muestras y el rendimiento de predicción lineal utilizando mínimos cuadrados. El segundo caso aborda la compresión de imágenes, estudiando la calidad de reconstrucción de imágenes comprimidas, la similitud entre imágenes en espacios de baja dimensión y determinando el número mínimo de dimensiones necesarias para garantizar un error de reconstrucción aceptable.
+\section{Métodos de resolución de ecuaciones diferenciales}
+
+ 
+\section{Implementación}
+
+
+\section{Resultados y análisis}
+
+\section{Conclusión}
+
+
+\appendix
+
+
+
+
+\end{multicols}
+
+\printbibliography
+
+
+
+\end{document}
