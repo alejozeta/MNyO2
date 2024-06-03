@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.image import imread
-from scipy.spatial.distance import pdist, squareform
+from sklearn.metrics.pairwise import cosine_similarity
 
 images = ['datasets_imgs/img00.jpeg', 'datasets_imgs/img01.jpeg', 'datasets_imgs/img02.jpeg', 'datasets_imgs/img03.jpeg', 
             'datasets_imgs/img04.jpeg', 'datasets_imgs/img05.jpeg', 'datasets_imgs/img06.jpeg', 'datasets_imgs/img07.jpeg', 
@@ -64,8 +64,7 @@ for d in compression_values:
     Vt_hat = Vt[:d, :]
 
     image_approximation = U_hat @ S_hat @ Vt_hat
-    distances = pdist(image_approximation, 'euclidean')
-    similarity_matrix = squareform(distances)
+    similarity_matrix = cosine_similarity(image_approximation)
 
     plt.figure()
     plt.imshow(similarity_matrix, cmap='hot', interpolation='nearest')
@@ -97,12 +96,13 @@ for d in range(1, 8):
     
     image_approximation = U_d_dtst2 @ S_d_dtst2 @ Vt_d_dtst2
 
-    frobenius = frobenius_norm(images_dataset2 - image_approximation)
-    print(f'Error para d = {d}: {frobenius * 100}%')
-    if frobenius < 0.1:
+    frobenius_relative_error = frobenius_norm(images_dataset2 - image_approximation) / frobenius_norm(images_dataset2)  # Error relativo
+
+    print(f'Error relativo para d = {d}: {frobenius_relative_error * 100:.2f}%')
+    if frobenius_relative_error < 0.1:
         print(f'El número mínimo de dimensiones que genera menos de 10% de error en la reducción es {d}')
-        print(f'Error: {frobenius * 100}%')
+        print(f'Error: {frobenius_relative_error * 100:.2f}%')
         break
-    
-    # elif d == 7:
-    #     print(f'No se encontró un número de dimensiones que genere menos de 10% de error en la reducción.  {frobenius * 100}%')
+
+    elif d == 7:
+        print(f'No se encontró un número de dimensiones que genere menos de 10% de error en la reducción. La mejor reducción que se puede realizar es a {d} dimensiones con un error del {frobenius_relative_error * 100:.2f}%')
