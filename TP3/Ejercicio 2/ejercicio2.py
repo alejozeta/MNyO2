@@ -66,9 +66,11 @@ for d in compression_values:
     image_approximation = U_hat @ S_hat @ Vt_hat
     similarity_matrix = cosine_similarity(image_approximation)
 
-    plt.figure()
+    plt.figure(figsize=(10, 8))
     plt.imshow(similarity_matrix, cmap='hot', interpolation='nearest')
     plt.colorbar()
+    plt.xticks(np.arange(similarity_matrix.shape[1]))
+    plt.yticks(np.arange(similarity_matrix.shape[0]))
     plt.title(f'Similarity Matrix for d = {d}')
     plt.show()
 
@@ -106,3 +108,24 @@ for d in range(1, 8):
 
     elif d == 7:
         print(f'No se encontró un número de dimensiones que genere menos de 10% de error en la reducción. La mejor reducción que se puede realizar es a {d} dimensiones con un error del {frobenius_relative_error * 100:.2f}%')
+
+
+# Reconstrucción de imágenes del dataset 1 con d = 7
+U_d = U[:, :7]
+S_d = np.diag(S[:7])
+Vt_d = Vt[:7, :]
+
+image_approximation = U_d @ S_d @ Vt_d
+
+plt.figure(figsize=(10, 5))
+
+for i in range(len(images)):
+    plt.subplot(4, 5, i+1)
+    plt.imshow(image_approximation[i].reshape(image_as_matrix.shape), cmap='gray')
+    plt.axis('off')
+plt.suptitle('Compression = 7')
+plt.show()
+
+# Calculo de error relativo para dataset 1 con d = 7
+frobenius_relative_error = frobenius_norm(images_data - image_approximation) / frobenius_norm(images_data)  # Error relativo
+print(f'Error relativo para d = 7 en el dataset 1: {frobenius_relative_error * 100:.2f}%')
