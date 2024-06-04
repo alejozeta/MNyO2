@@ -14,6 +14,7 @@ def show_original_images(images):
     plt.show()
     return
 
+# Procesamiento de imágenes como una única matriz
 def images_as_matrix(images):
     images_data = []
     for img in images:
@@ -26,7 +27,18 @@ def images_as_matrix(images):
 def svd_decomposition(images):
     return np.linalg.svd(images, full_matrices=False)
 
-# Compresión de imágenes
+# Visualización de compresión
+def visualization(approximation, d):
+    plt.figure(figsize=(10, 5))
+    for i in range(len(approximation)):
+        plt.subplot(4, 5, i+1)
+        plt.imshow(approximation[i].reshape((28, 28)), cmap='gray')
+        plt.axis('off')
+    plt.suptitle('Compression = ' + str(d))
+    plt.show()
+    return
+
+# Compresión de imágenes y visualización
 def compression_and_visualization(U, S, Vt, values):
     for d in values:
         U_d = U[:, :d]
@@ -35,13 +47,7 @@ def compression_and_visualization(U, S, Vt, values):
 
         image_approximation = U_d @ S_d @ Vt_d
 
-        plt.figure(figsize=(10, 5))
-        for i in range(len(image_approximation)):
-            plt.subplot(4, 5, i+1)
-            plt.imshow(image_approximation[i].reshape((28, 28)), cmap='gray')
-            plt.axis('off')
-        plt.suptitle('Compression = ' + str(d))
-        plt.show()
+        visualization(image_approximation, d)
 
     return image_approximation
 
@@ -79,9 +85,11 @@ def similarity_matrix_construction(U, S, Vt, values):
         plt.show()
     return
 
+# Norma de Frobenius
 def frobenius_norm(matrix):
     return np.linalg.norm(matrix, 'fro')
 
+# Compresión de imágenes y cálculo de error
 def compression_and_error(U, S, Vt, original_matrix):
     for d in range(1, 8):
         U_d = U[:, :d]
@@ -102,7 +110,6 @@ def compression_and_error(U, S, Vt, original_matrix):
             print(f'No se encontró un número de dimensiones que genere menos de 10% de error en la reducción. La mejor reducción que se puede realizar es a dimensión {d} con un error del {frobenius_relative_error * 100:.2f}%')
             return d
 
-
 # Reconstrucción de imágenes del dataset 1 con la dimesión óptima
 def optimal_dimension_reconstruction(U, S, Vt, d, original_matrix):
     U_d = U[:, :d]
@@ -111,13 +118,7 @@ def optimal_dimension_reconstruction(U, S, Vt, d, original_matrix):
 
     image_approximation = U_d @ S_d @ Vt_d
 
-    plt.figure(figsize=(10, 5))
-    for i in range(len(image_approximation)):
-        plt.subplot(4, 5, i+1)
-        plt.imshow(image_approximation[i].reshape((28, 28)), cmap='gray')
-        plt.axis('off')
-    plt.suptitle(f'Compression = {d}')
-    plt.show()
+    visualization(image_approximation, d)
 
     frobenius_relative_error = frobenius_norm(original_matrix - image_approximation) / frobenius_norm(original_matrix)  # Error relativo
     print(f'El error relativo para dimensión {d} en el dataset 1 es del {frobenius_relative_error * 100:.2f}%')
