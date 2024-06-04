@@ -53,8 +53,11 @@ def compression_and_visualization(U, S, Vt, values):
 
 # Valores singulares y suma acumulada
 def singular_values_and_cumulative_sum(S):  
+    x = np.arange(1, len(S)+1)
+
     # Singular values  
     plt.figure(1)
+    # plt.bar(x, S) -> revisar
     plt.semilogy(np.diag(np.diag(S)))
     plt.title('Singular values')
     plt.show()
