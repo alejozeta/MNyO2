@@ -38,14 +38,18 @@ def visualization(approximation, d):
     plt.show()
     return
 
+# Compresión de imágenes
+def compression(U, S, Vt, d):
+    U_d = U[:, :d]
+    S_d = np.diag(S[:d])
+    Vt_d = Vt[:d, :]
+
+    return U_d @ S_d @ Vt_d
+
 # Compresión de imágenes y visualización
 def compression_and_visualization(U, S, Vt, values):
     for d in values:
-        U_d = U[:, :d]
-        S_d = np.diag(S[:d])
-        Vt_d = Vt[:d, :]
-
-        image_approximation = U_d @ S_d @ Vt_d
+        image_approximation = compression(U, S, Vt, d)
 
         visualization(image_approximation, d)
 
@@ -94,12 +98,8 @@ def frobenius_norm(matrix):
 
 # Compresión de imágenes y cálculo de error
 def compression_and_error(U, S, Vt, original_matrix):
-    for d in range(1, 8):
-        U_d = U[:, :d]
-        S_d = np.diag(S[:d])
-        Vt_d = Vt[:d, :]
-        
-        image_approximation = U_d @ S_d @ Vt_d
+    for d in range(1, 9):
+        image_approximation = compression(U, S, Vt, d)
 
         frobenius_relative_error = frobenius_norm(original_matrix - image_approximation) / frobenius_norm(original_matrix)  # Error relativo
 
@@ -108,25 +108,17 @@ def compression_and_error(U, S, Vt, original_matrix):
             print(f'El número mínimo de dimensiones que genera menos de 10% de error en la reducción es {d}')
             print(f'Error: {frobenius_relative_error * 100:.2f}%')
             return d
-
-        elif d == 7:
-            print(f'No se encontró un número de dimensiones que genere menos de 10% de error en la reducción. La mejor reducción que se puede realizar es a dimensión {d} con un error del {frobenius_relative_error * 100:.2f}%')
-            return d
+        
+def change_base(a_reduced, Vt):
+    return a_reduced @ Vt.T @ Vt
 
 # Reconstrucción de imágenes del dataset 1 con la dimesión óptima
-def optimal_dimension_reconstruction(U, S, Vt, d, original_matrix):
-    U_d = U[:, :d]
-    S_d = np.diag(S[:d])
-    Vt_d = Vt[:d, :]
+def optimal_dimension_reconstruction(d, original_matrix, changed_base):
+    visualization(changed_base, d)
 
-    image_approximation = U_d @ S_d @ Vt_d
-
-    visualization(image_approximation, d)
-
-    frobenius_relative_error = frobenius_norm(original_matrix - image_approximation) / frobenius_norm(original_matrix)  # Error relativo
+    frobenius_relative_error = frobenius_norm(original_matrix - changed_base) / frobenius_norm(original_matrix)  # Error relativo
     print(f'El error relativo para dimensión {d} en el dataset 1 es del {frobenius_relative_error * 100:.2f}%')
-
-    return image_approximation
+    return
 
 
 def main():
@@ -148,7 +140,7 @@ def main():
     U, S, Vt = svd_decomposition(images_data1)
 
     # Compresión y visualización
-    compression_and_visualization(U, S, Vt, compression_values)
+    compressed_images_matrix = compression_and_visualization(U, S, Vt, compression_values)
 
     # Valores singulares y suma acumulada
     singular_values_and_cumulative_sum(S)
@@ -168,8 +160,12 @@ def main():
     # Cálculo de dimensión óptima a tarvés de la compresión de imágenes y cálculo de error
     optimal_dimension = compression_and_error(U2, S2, Vt2, images_data2)
 
+    # Cambio de base
+    cb_matrix = change_base(compressed_images_matrix, Vt2) # Matriz de data 1 cambiada de base con los autovectores de data 2
+
     # Reconstrucción de imágenes del dataset 1 con la dimensión óptima
-    optimal_dimension_reconstruction(U, S, Vt, optimal_dimension, images_data1)
+    optimal_dimension_reconstruction(optimal_dimension, images_data1, cb_matrix)
+
 
 
 if __name__ == '__main__':
