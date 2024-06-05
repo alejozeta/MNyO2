@@ -10,7 +10,7 @@ def show_original_images(images):
         plt.subplot(4, 5, i+1)
         plt.imshow(imread(images[i]), cmap='gray')
         plt.axis('off')
-    plt.suptitle('Original images')
+    plt.suptitle('Imágenes originales')
     plt.savefig('original_images.jpeg')
     plt.show()
     return
@@ -35,7 +35,7 @@ def visualization(approximation, d):
         plt.subplot(4, 5, i+1)
         plt.imshow(approximation[i].reshape((28, 28)), cmap='gray')
         plt.axis('off')
-    plt.suptitle('Compression = ' + str(d))
+    plt.suptitle('Compresión = ' + str(d))
     plt.savefig(f'compression_{d}.jpeg')
     plt.show()
     return
@@ -63,16 +63,19 @@ def singular_values_and_cumulative_sum(S):
 
     # Singular values  
     plt.figure(1)
-    # plt.bar(x, S) -> revisar
-    plt.semilogy(np.diag(np.diag(S)))
-    plt.title('Singular values')
+    plt.plot(np.diag(np.diag(S)))
+    plt.xlabel('Valores Singulares')
+    plt.ylabel('Carga de energía')
+    plt.title('Carga de energía de los valores singulares')
     plt.savefig('singular_values.jpeg')
     plt.show()
 
     # Cumulative sum of singular values
     plt.figure(2)
     plt.plot(np.cumsum(np.diag(np.diag(S)))/np.sum(np.diag(np.diag(S))))
-    plt.title('Cumulative sum of singular values')
+    plt.xlabel('Valores Singulares')
+    plt.ylabel('Suma acumulada')
+    plt.title('Suma acumulada de los valores singulares')
     plt.savefig('cumulative_sum.jpeg')
     plt.show()
     return
@@ -92,7 +95,7 @@ def similarity_matrix_construction(U, S, Vt, values):
         plt.colorbar()
         plt.xticks(np.arange(similarity_matrix.shape[1]))
         plt.yticks(np.arange(similarity_matrix.shape[0]))
-        plt.title(f'Similarity Matrix for d = {d}')
+        plt.title(f'Matriz de similaridad para d = {d}')
         plt.savefig(f'similarity_matrix_{d}.jpeg')
         plt.show()
     return
