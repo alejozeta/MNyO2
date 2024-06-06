@@ -10,8 +10,10 @@ def show_original_images(images):
         plt.subplot(4, 5, i+1)
         plt.imshow(imread(images[i]), cmap='gray')
         plt.axis('off')
-    plt.suptitle('Imágenes originales')
-    plt.savefig('original_images.jpeg')
+    if images[0] == 'datasets_imgs/img00.jpeg':
+        plt.savefig('original_images1.jpeg')
+    else:
+        plt.savefig('original_images2.jpeg')
     plt.show()
     return
 
@@ -35,7 +37,6 @@ def visualization(approximation, d):
         plt.subplot(4, 5, i+1)
         plt.imshow(approximation[i].reshape((28, 28)), cmap='gray')
         plt.axis('off')
-    plt.suptitle('Compresión = ' + str(d))
     plt.savefig(f'compression_{d}.jpeg')
     plt.show()
     return
@@ -54,8 +55,8 @@ def compression_and_visualization(U, S, Vt, values):
         image_approximation = compression(U, S, Vt, d)
 
         visualization(image_approximation, d)
-
-    return image_approximation
+    
+    return
 
 # Valores singulares y suma acumulada
 def singular_values_and_cumulative_sum(S):  
@@ -66,7 +67,7 @@ def singular_values_and_cumulative_sum(S):
     plt.plot(np.diag(np.diag(S)))
     plt.xlabel('Valores Singulares')
     plt.ylabel('Carga de energía')
-    plt.title('Carga de energía de los valores singulares')
+    plt.grid()
     plt.savefig('singular_values.jpeg')
     plt.show()
 
@@ -75,9 +76,10 @@ def singular_values_and_cumulative_sum(S):
     plt.plot(np.cumsum(np.diag(np.diag(S)))/np.sum(np.diag(np.diag(S))))
     plt.xlabel('Valores Singulares')
     plt.ylabel('Suma acumulada')
-    plt.title('Suma acumulada de los valores singulares')
+    plt.grid()
     plt.savefig('cumulative_sum.jpeg')
     plt.show()
+    
     return
 
 # Matriz de similaridad
@@ -95,21 +97,25 @@ def similarity_matrix_construction(U, S, Vt, values):
         plt.colorbar()
         plt.xticks(np.arange(similarity_matrix.shape[1]))
         plt.yticks(np.arange(similarity_matrix.shape[0]))
-        plt.title(f'Matriz de similaridad para d = {d}')
         plt.savefig(f'similarity_matrix_{d}.jpeg')
         plt.show()
+    
     return
 
 # Norma de Frobenius
 def frobenius_norm(matrix):
     return np.linalg.norm(matrix, 'fro')
 
+def relative_error(original, approximation):
+    return frobenius_norm(original - approximation) / frobenius_norm(original)
+
 # Compresión de imágenes y cálculo de error
-def compression_and_error(U, S, Vt, original_matrix):
+def compression_and_error(U, S, Vt, original_matrix, error):
     for d in range(1, 9):
         image_approximation = compression(U, S, Vt, d)
 
-        frobenius_relative_error = frobenius_norm(original_matrix - image_approximation) / frobenius_norm(original_matrix)  # Error relativo
+        frobenius_relative_error = relative_error(original_matrix, image_approximation)  # Error relativo
+        error.append(frobenius_relative_error)
 
         print(f'Error relativo para dimensión {d}: {frobenius_relative_error * 100:.2f}%')
         if frobenius_relative_error < 0.1:
@@ -119,14 +125,6 @@ def compression_and_error(U, S, Vt, original_matrix):
         
 def change_base(a_reduced, Vt):
     return a_reduced @ Vt.T @ Vt
-
-# Reconstrucción de imágenes del dataset 1 con la dimesión óptima
-def optimal_dimension_reconstruction(d, original_matrix, changed_base):
-    visualization(changed_base, d)
-
-    frobenius_relative_error = frobenius_norm(original_matrix - changed_base) / frobenius_norm(original_matrix)  # Error relativo
-    print(f'El error relativo para dimensión {d} en el dataset 1 es del {frobenius_relative_error * 100:.2f}%')
-    return
 
 
 def main():
@@ -148,7 +146,7 @@ def main():
     U, S, Vt = svd_decomposition(images_data1)
 
     # Compresión y visualización
-    compressed_images_matrix = compression_and_visualization(U, S, Vt, compression_values)
+    compression_and_visualization(U, S, Vt, compression_values)
 
     # Valores singulares y suma acumulada
     singular_values_and_cumulative_sum(S)
@@ -161,18 +159,35 @@ def main():
     images_dataset_2 = ['datasets_imgs_02/img00.jpeg', 'datasets_imgs_02/img01.jpeg', 'datasets_imgs_02/img02.jpeg', 'datasets_imgs_02/img03.jpeg', 
                         'datasets_imgs_02/img04.jpeg', 'datasets_imgs_02/img05.jpeg', 'datasets_imgs_02/img06.jpeg', 'datasets_imgs_02/img07.jpeg']
 
+    # Mostrar imágenes originales
+    show_original_images(images_dataset_2)
+
     # Descomposición SVD
     images_data2 = images_as_matrix(images_dataset_2)
     U2, S2, Vt2 = svd_decomposition(images_data2)
 
     # Cálculo de dimensión óptima a tarvés de la compresión de imágenes y cálculo de error
-    optimal_dimension = compression_and_error(U2, S2, Vt2, images_data2)
+    errors = []
+    optimal_dimension = compression_and_error(U2, S2, Vt2, images_data2, errors)
+    plt.plot(range(1, 9), errors, marker='o', linestyle='-', color='b', label='Error')
+    plt.plot(range(1, 9), [0.1] * 8, linestyle='--', color='r', label='10%')
+    plt.xlabel('Dimensiones')
+    plt.ylabel('Error')
+    plt.legend(loc='best')
+    plt.grid()
+    plt.savefig('error.jpeg')
+    plt.show()
 
-    # Cambio de base
-    cb_matrix = change_base(compressed_images_matrix, Vt2) # Matriz de data 1 cambiada de base con los autovectores de data 2
+    # Cambio de base / Reconstrucción de imágenes del dataset 1 con la dimensión óptima
+    reconstructed_matrix_od = compression(U, S, Vt, optimal_dimension)
+    cb_matrix = change_base(reconstructed_matrix_od, Vt2) # Matriz de data 1 cambiada de base con los autovectores de data 2
 
-    # Reconstrucción de imágenes del dataset 1 con la dimensión óptima
-    optimal_dimension_reconstruction(optimal_dimension, images_data1, cb_matrix)
+    # Visualización de imágenes reconstruidas con cambio de base
+    visualization(cb_matrix, optimal_dimension)
+
+    # Cálculo de error de reconstrucción con cambio de base
+    frobenius_relative_error_cb = relative_error(images_data1, cb_matrix)
+    print(f'El error relativo de reconstrucción con cambio de base para d = {optimal_dimension} es del {frobenius_relative_error_cb}')
 
 
 
