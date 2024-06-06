@@ -21,7 +21,7 @@ df = df.astype(float)
 # Convert the DataFrame to a numpy array
 X = df.values
 compression_values += [X.shape[1]]
-
+print(X.shape[1])
 Y = np.loadtxt('Ejercicio 1/y1.txt')
 
 
@@ -30,7 +30,7 @@ X_mean = np.mean(X, axis=0)
 X_centered = X - X_mean
 
 U,S,VT = np.linalg.svd(X_centered, full_matrices=False)
-
+print(U.shape, S.shape, VT.shape)
 
 xyz = np.zeros((X.shape[0],3))
 for i in range(X.shape[0]):
@@ -50,14 +50,14 @@ ax.scatter(xyz[:, 0], xyz[:, 1], xyz[:, 2])
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
 ax.set_zlabel('Z')
-plt.title('3D plot of the data')
+# plt.title('Clusters')
 
 # Show the plot
 plt.show()
 
 
-def similarity_matrix(X, sigma):
-    distances = squareform(pdist(X, 'euclidean'))
+def similarity_matrix(matrix, sigma):
+    distances = squareform(pdist(matrix, 'euclidean'))
     k = np.exp(-distances**2/(2*sigma**2))
     return k
 
@@ -67,21 +67,14 @@ def PCA(U, S, d):
     Z = np.dot(Ud, Sd)
     return Sd, Ud, Z
 
+plt.figure(figsize=(8, 8))
+counter = 1
 for compression in compression_values:
-    VT_hat = VT[:compression,:]
+    VT_hat = VT[:compression, :]
     # Perform PCA
     S_hat, U_hat, XV_hat = PCA(U, S, compression)
 
-    if compression == 206:
-
-        doms = np.linspace(1,compression,compression)
-        #Singular values plot:
-        plt.figure(figsize=(8,6))
-        plt.bar(doms,S[:compression])
-        plt.title('Singular values plot of the full matrix')
-        plt.ylabel('Singular value')
-        plt.xlabel('Singular value dimension')
-        plt.show()
+    
 
 
     sigma = 1.0
@@ -90,41 +83,22 @@ for compression in compression_values:
     similarity = similarity_matrix(XV_hat, sigma)
     
     # Display the similarity matrix
-    plt.figure(figsize=(8, 6))
+    plt.subplot(2,2,counter)
     plt.imshow(similarity, cmap='viridis')
     plt.colorbar()
-    plt.title('Similarity Matrix with compression = ' + str(compression))
-    plt.show()
+    plt.title('Compresión = ' + str(compression))
+    # plt.show()
+    counter+=1
+plt.show()
+
+        
 
 
-
-    xyz = np.zeros((X.shape[0],3))
-    for i in range(X.shape[0]):
-        xyz[i,0] = VT[0,:]@X_centered[i,:]
-        xyz[i,1] = VT[1,:]@X_centered[i,:]
-        xyz[i,2] = VT[2,:]@X_centered[i,:]
-
-
-    # xyz = np.zeros((X.shape[0],3))
-    # for i in range(X.shape[0]):
-    #     xyz[i,0] = VT[0,:]@X_centered[i,:]
-    #     xyz[i,1] = VT[1,:]@X_centered[i,:]
-    #     xyz[i,2] = VT[2,:]@X_centered[i,:]
-
-
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-
-    # Plot the x, y, and z coordinates
-    ax.scatter(xyz[:, 0], xyz[:, 1], xyz[:, 2])
-
-    # Set labels for the x, y, and z axes
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-    plt.title('3D plot of the data')
-
-    # Show the plot
-    plt.show()
-
+doms = np.linspace(1,206,206)
+#Singular values plot:
+plt.figure(figsize=(8,6))
+plt.bar(doms,S[:compression])
+# plt.title('Singular values plot of the full matrix')
+plt.ylabel('Valor singular')
+plt.xlabel('Dimensión')
+plt.show()
