@@ -187,7 +187,7 @@ def main():
 
     # Cálculo de error de reconstrucción con cambio de base
     frobenius_relative_error_cb = relative_error(images_data1, cb_matrix)
-    print(f'El error relativo de reconstrucción con cambio de base para d = {optimal_dimension} es del {frobenius_relative_error_cb}')
+    print(f'El error relativo de reconstrucción con cambio de base para d = {optimal_dimension} es del {frobenius_relative_error_cb * 100:.2f}%')
 
 
 
