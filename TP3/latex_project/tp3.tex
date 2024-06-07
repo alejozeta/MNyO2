@@ -63,9 +63,12 @@ Este informe explora la aplicación de la Descomposición de Valores Singulares 
 \raggedcolumns
 
 \section{Introducción}
-La Descomposición de Valores Singulares (SVD) \cite{burdenfaires} es una técnica fundamental en el análisis de datos y procesamiento de señales. Esta descomposición matricial permite factorizar una matriz en tres componentes: matrices ortogonales y una matriz diagonal de valores singulares. La SVD tiene numerosas aplicaciones, incluyendo la reducción de dimensionalidad y la compresión de datos.
-La reducción de dimensionalidad \cite{linaer_algebra} es un proceso crucial en el análisis de conjuntos de datos de alta dimensión. Estos conjuntos a menudo contienen redundancias y ruido, lo que dificulta su visualización e interpretación. La SVD permite proyectar los datos a un espacio de dimensión reducida, preservando la mayor cantidad posible de información relevante y facilitando el análisis y la visualización de patrones subyacentes.
+La Descomposición de Valores Singulares (SVD) \cite{burdenfaires} es una técnica fundamental en el análisis de datos y procesamiento de señales. Esta descomposición matricial permite factorizar una matriz en tres componentes: matrices ortogonales y una matriz diagonal de valores singulares. La SVD tiene numerosas aplicaciones, incluyendo la reducción de dimensionalidad y la compresión de datos. La reducción de dimensionalidad \cite{linaer_algebra} es un proceso crucial en el análisis de conjuntos de datos de alta dimensión. Estos conjuntos a menudo contienen redundancias y ruido, lo que dificulta su visualización e interpretación. La SVD permite proyectar los datos a un espacio de dimensión reducida, preservando la mayor cantidad posible de información relevante y facilitando el análisis y la visualización de patrones subyacentes.
+\\
+
 Por otro lado, la compresión de imágenes es una tarea fundamental en el procesamiento de imágenes digitales. Las imágenes digitales suelen requerir una gran cantidad de espacio de almacenamiento y ancho de banda para su transmisión. La SVD ofrece una técnica eficiente para comprimir imágenes, reduciendo su tamaño sin comprometer significativamente la calidad visual.
+\\
+
 En este informe, se exploran dos casos de estudio que aprovechan la potencia de la SVD. El primero se centra en la reducción de dimensionalidad de un conjunto de datos multidimensional, analizando el impacto de diferentes dimensiones reducidas en la preservación de similitud entre muestras y el rendimiento de predicción lineal utilizando mínimos cuadrados. El segundo caso aborda la compresión de imágenes, estudiando la calidad de reconstrucción de imágenes comprimidas, la similitud entre imágenes en espacios de baja dimensión y determinando el número mínimo de dimensiones necesarias para garantizar un error de reconstrucción aceptable.
 
 
@@ -106,23 +109,17 @@ donde \(U\) es la matriz de vectores singulares izquierdos de tamaño \(m \times
 \subsection{Reducción de dimensionalidad: Análisis de Componentes Principales (PCA)}
 \label{PCA}
 En la reducción de dimensionalidad, utilizamos el método de Análisis de Componentes Principales (PCA). PCA es una técnica estadística que permite transformar un conjunto de variables correlacionadas en un nuevo conjunto de variables no correlacionadas llamadas componentes principales. Estos componentes principales capturan la mayor parte de la variabilidad de los datos originales y se ordenan en función de su importancia.
-
-El cálculo de PCA se realiza a través de los siguientes pasos:
-
-1. Calculamos la matriz de covarianza de los datos originales.
-2. Calculamos los autovectores y autovalores de la matriz de covarianza.
-3. Ordenamos los autovectores en función de sus autovalores, de mayor a menor.
-4. Seleccionamos los primeros k autovectores correspondientes a los k componentes principales.
-5. Proyectamos los datos originales en el espacio de los k componentes principales.
-
-La fórmula para la proyección de los datos originales en el espacio de los k componentes principales es:
-
-\[
-X_{\text{proy}} = X \cdot V_k
-\]
-
-donde \(X_{\text{proy}}\) es la matriz de datos proyectada, \(X\) es la matriz de datos originales y \(V_k\) es la matriz de autovectores correspondientes a los k componentes principales.
-
+\\
+La idea es proyectar los datos $x_i$ a un espacio de menor dimensión $z\in\mathbb{R}$ con $p<n$. Busco transformación $\beta$ de $n\times p$ tal que $\langle x,\beta \rangle = z$.
+La matriz $\beta$ se obtiene tomando los primeros $p$ valores singulares de la matriz $X$. 
+Para calcular la matriz $\beta$ realizo una proyección como 
+\begin{align}
+    XV = Z\\
+    X = USV^T\\
+    XV=USV^{T}V\\
+    XV=US
+\end{align}
+Por lo tanto para proyectar los datos en $Z$ se computa $US$
 
 
 \subsection{Fórmula de similitud}
@@ -140,8 +137,10 @@ para algún valor de $\sigma$. Aquí, $|x_i - x_j|_2$ representa la norma Euclid
 \label{cuads_mins}
 
 Utilizamos el método de Cuadrados Mínimos utilizando la Descomposición de Valores Singulares (SVD) para resolver un sistema de ecuaciones lineales sobredeterminado, es decir, cuando el número de ecuaciones es mayor que el número de incógnitas.
+\\
 
 Considere el sistema de ecuaciones lineales representado por $Ax = b$, donde $A$ es una matriz $m \times n$, $x$ es el vector de incógnitas de dimensión $n \times 1$, y $b$ es el vector de términos independientes de dimensión $m \times 1$.
+\\
 
 Si $A$ es una matriz de rango completo, podemos aplicar la Descomposición de Valores Singulares:
 
@@ -150,6 +149,7 @@ A = USV^t
 \]
 
 donde $U$ es una matriz $m \times m$ ortonormal, $S$ es una matriz diagonal $m \times n$ que contiene los valores singulares de $A$, y $V^t$ es la traspuesta de una matriz $n \times n$ ortonormal.
+\\
 
 Como $A$ no tiene inversa para resolver directamente $Ax = b$, calculamos la pseudo-inversa $A^+$ y la aproximación de la solución $\tilde{x}$:
 
@@ -191,28 +191,31 @@ La norma de Frobenius se define por la siguiente ecuación:
 \section{Implementación}
 \subsection{Reducción de Dimensionalidad}
 Para realizar la reducción de dimensionalidad utilizando SVD, se implementó el siguiente procedimiento en forma de pasos:
+\\
 
 Primero, se cargaron los datos del archivo \texttt{dataset01.csv} en una matriz $X$ de dimensiones $n \times p$, donde $n$ es el número de muestras y $p$ es la dimensión original de los datos. Luego, se calculó la SVD de la matriz $X$ utilizando la función \texttt{numpy.linalg.svd} de la biblioteca NumPy en Python. Esta función devuelve las matrices $U$, $\Sigma$ (diagonal de valores singulares) y $V^T$.
+\\
 
 Para reducir la dimensionalidad a $d$, se seleccionaron los primeros $d$ vectores singulares izquierdos de $U$, los primeros $d$ valores singulares de $\Sigma$ y los primeros $d$ vectores singulares derechos de $V^T$. Posteriormente, se calculó la matriz de datos proyectada $Z$ de dimensiones $n \times d$ como el producto de la matriz $X$ y las matrices truncadas de la SVD. Este proceso se repitió para diferentes valores de $d$ (2, 6, 10 y $p$).
 
 \subsection{Compresión de Imágenes}
 Para la compresión de imágenes utilizando SVD, se implementó el siguiente procedimiento en forma de pasos:
+\\
 
 Primero, se cargaron las imágenes del archivo \texttt{dataset\_imagenes1.zip} en una matriz $X$ de dimensiones $n \times (p * p)$, donde $n$ es el número de imágenes y $p * p$ es la dimensión de cada imagen. Luego, se calculó la SVD de la matriz $X$ utilizando la función \texttt{numpy.linalg.svd} de NumPy.
+\\
 
 Para reducir la dimensionalidad a $d$, se seleccionaron los primeros $d$ vectores singulares (columnas) de $U$, los primeros $d$ valores singulares de $\Sigma$ y los primeros $d$ vectores singulares (filas) de $V^T$. Posteriormente, se calculó la matriz de imágenes comprimidas $Z$ como el producto de las matrices truncadas de la SVD. Este proceso se repitió para diferentes valores de $d$ (2, 6, 10 y 15).
+\\
 
 Finalmente, se visualizaron las imágenes comprimidas y se analizó la calidad de reconstrucción. Además, se calculó la matriz de similitud entre imágenes utilizando la función de similitud definida en la Ecuación \ref{eq: Similitud}.
-
-
 
 
 \section{Resultados y Análisis}
 \subsection{Reducción de Dimensionalidad y Cuadrados Mínimos}
 \subsubsection{Reducción de Dimensionalidad}
 
-La figura \ref{fig:clusters_originals} representa la información de la matriz $X$, mostrando los clusters formados por los datos originales. Para crear este gráfico, se utilizó la matriz $X$ sin ninguna reducción de dimensionalidad, y se aplicaron técnicas de clustering para visualizar cómo se agrupan los datos en su espacio original.
+La figura \ref{fig:clusters_originals} representa la información de la matriz $X$, mostrando los clusters formados por los datos originales. Para crear este gráfico, se utilizó la matriz $X$ sin ninguna reducción de dimensionalidad, y se aplicaron técnicas de clustering para visualizar cómo se agrupan los datos en su espacio original. La figura muestra dos clusters, mostrando que los datos no estaban distribuidos de manera uniforme.
 
 \begin{figure}[H]
     \centering
@@ -225,12 +228,21 @@ La figura \ref{fig:valores_singulares_X} muestra los valores singulares de la ma
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.65\textwidth]{latex_project/plots1/valores_singulares_martrizFULL.png}
+    \includegraphics[width=0.63\textwidth]{latex_project/plots1/valores_singulares_martrizFULL.png}
     \caption{Valores singulares de $X$}
     \label{fig:valores_singulares_X}
 \end{figure}
 
 La figura \ref{fig:similarity_matrix} presenta las matrices de similitud para las distintas dimensiones. La matriz de similitud se calcula utilizando una función de similitud exponencial \ref{eq: Similitud} Esta visualización ayuda a entender cómo varía la similitud entre los puntos de datos a medida que se reduce la dimensionalidad. Cada matriz de similitud refleja la estructura interna de los datos en el espacio de dimensiones reducidas.
+\\
+
+La primera matriz, con compresión \(d = 2\), muestra una estructura más uniforme en las similitudes entre los datos, lo que indica que con una reducción extrema de dimensiones, la capacidad de diferenciar entre puntos de datos disminuye significativamente. Esto se debe a la pérdida de información crítica que se produce cuando solo se conservan las primeras dos dimensiones más importantes.
+\\
+
+A medida que incrementamos \(d\) a 6 y luego a 10, observamos que las matrices de similitud empiezan a mostrar más estructura y diversidad en los valores de similitud. Esto sugiere que estas dimensiones adicionales están capturando más variabilidad en los datos, permitiendo una mejor diferenciación entre puntos de datos.
+\\
+
+Un aspecto importante a notar en las matrices de similitud es la diagonal. Los valores en la diagonal de estas matrices siempre son 1, lo cual indica que cada punto de datos es idéntico a sí mismo. Esto es esperado y sirve como un punto de referencia. Sin embargo, a medida que se observan los valores fuera de la diagonal, se puede ver cómo la similitud entre diferentes puntos de datos varía. En las matrices de baja dimensionalidad (por ejemplo, \(d = 2\)), los valores fuera de la diagonal tienden a ser más homogéneos, indicando menos discriminación entre puntos de datos. En contraste, en matrices de mayor dimensionalidad (por ejemplo, \(d = 206\)), los valores fuera de la diagonal muestran mayor variabilidad, reflejando mejor las diferencias y similitudes entre distintos puntos de datos.
 
 \begin{figure}[H]
     \centering
@@ -265,10 +277,13 @@ La figura \ref{fig:Norm_relative_error} presenta los errores relativos de la apr
     \caption{Errores relativos de la aproximación de $Y$ a medida que aumentan las dimensiones}
     \label{fig:Norm_relative_error}
 \end{figure}
-
-
-
-
+El peso que se le asigna a cada dimensión original se ve en el vector $\beta$. El peso de cada dimensión es el valor de $\beta$ en esa posición. Los pesos se ven en la figura \ref{fig:BETA}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{latex_project/beta.png}
+    \caption{Valores del vector $\beta$}
+    \label{fig:BETA}
+\end{figure}
 
 
 \subsection{Compresión de Imágenes}
@@ -443,6 +458,15 @@ Es evidente que la reconstrucción de las imágenes no es la mejor en esta dimen
 Al hacer el cálculo del error relativo se descartan dudas sobre el tamaño del error en la reconstrucción realizada.
 
 \section{Conclusión}
+En la primera parte del informe, se realizó una reducción de dimensionalidad del conjunto de datos mediante la Descomposición en Valores Singulares (SVD). Este proceso permitió identificar las dimensiones originales más importantes, es decir, aquellas que más contribuyen a la variabilidad en el conjunto de datos reducido. Se encontró que para \(d=10\), las dimensiones más relevantes fueron \(205, 203, 201, 202, 204, 200, 91, 28, 140, 69\). Esto indica que estas dimensiones capturan la mayor parte de la información y son esenciales para representar adecuadamente los datos en el espacio reducido. 
+\\
+
+El análisis de la matriz de similaridad y los clusters formados en el espacio reducido mostró que es posible conservar la estructura intrínseca del conjunto de datos con un número significativamente menor de dimensiones. Esto no solo reduce la complejidad computacional sino que también ayuda a eliminar el ruido y las redundancias presentes en los datos originales, mejorando la eficiencia y precisión de los modelos analíticos.
+\\
+
+Además, la visualización de los errores relativos en la aproximación de \(Y\) a medida que aumentan las dimensiones \(d\) proporcionó una guía clara sobre el número óptimo de dimensiones a retener. Se observó que después de un cierto punto, aumentar \(d\) no mejora significativamente la aproximación, lo que sugiere un punto de equilibrio entre la complejidad del modelo y la precisión de la reconstrucción.
+\\
+
 En lo que respecta a la compresión de imágenes a través de descomposiciones SVD y truncamiento del producto, luego de un detallado análisis se llega a la conclusión de que no son neceesarias todas las dimensiones de una matriz para dar una reconstrucción fehaciente de la imagen que esta representa. El primer vector y valor singular almacenados en orden en las respectivas matrices de la descomposición guardan mayor información que el siguiente, y así sucesivamente, por lo que únicamente es necesario hacer uso de un número $d$ tal que $d \leq r,$ con $r$ rango de la matriz, de dimensiones para construir una imagen similar.
 \\
 
