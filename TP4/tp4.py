@@ -73,26 +73,6 @@ def find_B(X, Y, d):
     B = np.dot(A_d, Y)
     return B
 
-def plot_convergencia(x0, grad_F, s, iterations, delta2, grad_F2, matrix):
-    x = x0.copy()
-    x_history_F = [np.abs(x)]
-    
-    x_reg = x0.copy()
-    x_reg_history_F2 = [np.abs(x)]
-
-    for _ in range(iterations):
-        grad = grad_F(matrix,x)
-        if np.any(np.isnan(grad)) or np.any(np.isinf(grad)):
-            break
-        x = x - s * grad
-        x_history_F.append(np.abs(x))
-
-        grad_reg = grad_F2(matrix,x_reg, delta2)
-        if np.any(np.isnan(grad_reg)) or np.any(np.isinf(grad_reg)):
-            break
-        x_reg = x_reg - s * grad_reg
-        x_reg_history_F2.append(np.abs(x_reg))
-    
 
 
 def main1():
@@ -124,6 +104,8 @@ def main1():
     plt.plot([F(matrix, b1)]*iters, label='F(B), least squares')
 
     plt.plot([F2(matrix, b1,delta2)]*iters, label='F2(B), regularized least squares')
+
+    plt.plot([F2(x2, b1,delta2)]*iters, label='F2(x2), regularized least squares')
     plt.yscale("log")
     plt.xlabel('Iteraciones')
     plt.ylabel('Valores de x')
