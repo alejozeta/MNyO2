@@ -43,12 +43,13 @@ def gradiente_descendente(matrix, x0, iters, alpha):
         x = x - alpha * grad_f(matrix, x)
     return x, x_values
 
-def gradiente_descendente2(matrix, x0, iters, alpha,delta):
+def gradiente_descendente2(matrix, x0, iters, alpha, delta):
     x = x0
     x_values = []
     for _ in range(iters):
         x_values.append(x)
         x = x - alpha * grad_f2(matrix, x,delta)
+        print(x[0])
     return x, x_values
 
 
@@ -59,6 +60,7 @@ def pseudo_inverse(A, d):
     A_d = np.dot(VT.T[:,:d], S_d).dot(U.T[:d,:])
     # print(A_d.shape)
     return A_d
+
 def absolute_error(A,B):
     abserr = 0 
     
@@ -79,16 +81,18 @@ def main1():
     matrix = np.random.randn(n, d)
     alpha = calculate_alpha(matrix)
     x1, x1_values = gradiente_descendente(matrix, x0, iters, alpha)
-    print("After 1000 iters, F1(x*)= ",F(matrix, x1))
-    delta2 = 1e-2 * np.max(np.linalg.svd(matrix, compute_uv=False))
+    print("After 1000 iters, F1(x*)=",F(matrix, x1))
+    delta2 = 1e-2 * (np.max(np.linalg.svd(matrix, compute_uv=False)))
+    # print(np.max(np.linalg.svd(matrix, compute_uv=False)))
+    # print(delta2)
     x2, x2_values = gradiente_descendente2(matrix, x0, iters, alpha,delta2)
-    print("After 1000 iters, F2(x*)= ",F2(matrix, x2,delta2))
+    print("After 1000 iters, F2(x*)=",F2(matrix, x2,delta2))
 
 
     b1 = find_B(matrix, b, 5)
-    print("B = ",b1)
+    print("B =", b1)
     print(F(matrix, b1))
-    print("Absolute error = ", absolute_error(x1,b1))
+    print("Absolute error =", absolute_error(x1,b1))
     y1_values = [F(matrix, x) for x in x1_values]
     y2_values = [F2(matrix, x,delta2) for x in x2_values]
     iteraciones = range(iters)
@@ -117,8 +121,3 @@ def main1():
 
 if __name__ == "__main__":
     main1()
-
-
-
-    
-
