@@ -117,7 +117,17 @@ def main1():
         plt.legend()
         plt.grid(True)
         plt.show()
-    
+
+        y3_values = [F(matrix, x) for x in x2_values]
+        y4_values = [F2(matrix, x, delta2) for x in x1_values]
+        plt.loglog(y3_values, label='Descenso por gradiente')
+        plt.loglog(y4_values, label='Descenso por gradiente con regularización L2')
+        plt.xlabel('Iteraciones')
+        plt.ylabel('Valores de x')
+        plt.title('Evolución de los valores de x a lo largo de las iteraciones')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
 
 if __name__ == "__main__":
     main1()
