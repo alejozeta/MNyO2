@@ -49,7 +49,6 @@ def gradiente_descendente2(matrix, x0, iters, alpha, delta):
     for _ in range(iters):
         x_values.append(x)
         x = x - alpha * grad_f2(matrix, x,delta)
-        print(x[0])
     return x, x_values
 
 
@@ -82,41 +81,43 @@ def main1():
     alpha = calculate_alpha(matrix)
     x1, x1_values = gradiente_descendente(matrix, x0, iters, alpha)
     print("After 1000 iters, F1(x*)=",F(matrix, x1))
-    delta2 = 1e-2 * (np.max(np.linalg.svd(matrix, compute_uv=False)))
-    # print(np.max(np.linalg.svd(matrix, compute_uv=False)))
-    # print(delta2)
-    x2, x2_values = gradiente_descendente2(matrix, x0, iters, alpha,delta2)
-    print("After 1000 iters, F2(x*)=",F2(matrix, x2,delta2))
+    delta2_list = [1e-2 * (np.max(np.linalg.svd(matrix, compute_uv=False))), 1e-3 * (np.max(np.linalg.svd(matrix, compute_uv=False))),
+              1e-4 * (np.max(np.linalg.svd(matrix, compute_uv=False))), 1e-5 * (np.max(np.linalg.svd(matrix, compute_uv=False)))]
+    for delta2 in delta2_list:
+        # print(np.max(np.linalg.svd(matrix, compute_uv=False)))
+        # print(delta2)
+        x2, x2_values = gradiente_descendente2(matrix, x0, iters, alpha,delta2)
+        print("After 1000 iters, F2(x*)=",F2(matrix, x2,delta2))
 
 
-    b1 = find_B(matrix, b, 5)
-    print("B =", b1)
-    print(F(matrix, b1))
-    print("Absolute error =", absolute_error(x1,b1))
-    y1_values = [F(matrix, x) for x in x1_values]
-    y2_values = [F2(matrix, x,delta2) for x in x2_values]
-    iteraciones = range(iters)
+        b1 = find_B(matrix, b, 5)
+        print("B =", b1)
+        print(F(matrix, b1))
+        print("Absolute error =", absolute_error(x1,b1))
+        y1_values = [F(matrix, x) for x in x1_values]
+        y2_values = [F2(matrix, x,delta2) for x in x2_values]
+        iteraciones = range(iters)
 
 
-    y1_values = [F(matrix, x) for x in x1_values]
-    y2_values = [F2(matrix, x, delta2) for x in x2_values]
+        y1_values = [F(matrix, x) for x in x1_values]
+        y2_values = [F2(matrix, x, delta2) for x in x2_values]
 
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(y2_values, label='Descenso por gradiente con regularización L2')
-    plt.plot(y1_values, label='Descenso por gradiente')
-    plt.plot([F(matrix, b1)]*iters, label='F(B), least squares')
+        plt.figure(figsize=(10, 6))
+        plt.plot(y2_values, label='Descenso por gradiente con regularización L2')
+        plt.plot(y1_values, label='Descenso por gradiente')
+        plt.plot([F(matrix, b1)]*iters, label='F(B), least squares')
 
-    plt.plot([F2(matrix, b1,delta2)]*iters, label='F2(B), regularized least squares')
+        plt.plot([F2(matrix, b1,delta2)]*iters, label='F2(B), regularized least squares')
 
-    plt.plot([F2(x2, b1,delta2)]*iters, label='F2(x2), regularized least squares')
-    plt.yscale("log")
-    plt.xlabel('Iteraciones')
-    plt.ylabel('Valores de x')
-    plt.title('Evolución de los valores de x a lo largo de las iteraciones')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+        plt.plot([F2(x2, b1,delta2)]*iters, label='F2(x2), regularized least squares')
+        plt.yscale("log")
+        plt.xlabel('Iteraciones')
+        plt.ylabel('Valores de x')
+        plt.title('Evolución de los valores de x a lo largo de las iteraciones')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
     
 
 if __name__ == "__main__":
