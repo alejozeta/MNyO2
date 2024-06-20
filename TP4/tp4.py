@@ -24,7 +24,7 @@ def F2(matrix, x, delta):
     return F(matrix,x) + delta * F(matrix,x)*np.dot(x,x)
 
 def grad_f2(matrix, x,delta):
-    return grad_f(matrix,x) + 2 * delta * F(matrix,x) * x
+    return 2 * matrix.T @ (matrix @ x - b) + 2 * delta * np.dot(x,x) * x
 
 def hess_f2(matrix,delta):
     return hess_f(matrix) + 2 * delta * np.eye(matrix.shape[1])
@@ -81,8 +81,9 @@ def main1():
     alpha = calculate_alpha(matrix)
     x1, x1_values = gradiente_descendente(matrix, x0, iters, alpha)
     print("After 1000 iters, F1(x*)=",F(matrix, x1))
-    delta2_list = [1e-2 * (np.max(np.linalg.svd(matrix, compute_uv=False))), 1e-3 * (np.max(np.linalg.svd(matrix, compute_uv=False))),
-              1e-4 * (np.max(np.linalg.svd(matrix, compute_uv=False))), 1e-5 * (np.max(np.linalg.svd(matrix, compute_uv=False)))]
+    max_singular_value = np.max(np.linalg.svd(matrix, compute_uv=False))
+    delta2_list = [1e-2 * max_singular_value**2, 1e-3 * max_singular_value**2,
+              1e-4 * max_singular_value**2, 1e-5 * max_singular_value**2]
     for delta2 in delta2_list:
         # print(np.max(np.linalg.svd(matrix, compute_uv=False)))
         # print(delta2)
@@ -94,9 +95,7 @@ def main1():
         print("B =", b1)
         print(F(matrix, b1))
         print("Absolute error =", absolute_error(x1,b1))
-        y1_values = [F(matrix, x) for x in x1_values]
-        y2_values = [F2(matrix, x,delta2) for x in x2_values]
-        iteraciones = range(iters)
+        
 
 
         y1_values = [F(matrix, x) for x in x1_values]
@@ -104,8 +103,8 @@ def main1():
 
 
         plt.figure(figsize=(10, 6))
-        plt.plot(y2_values, label='Descenso por gradiente con regularización L2')
-        plt.plot(y1_values, label='Descenso por gradiente')
+        plt.loglog(y2_values, label='Descenso por gradiente con regularización L2')
+        plt.loglog(y1_values, label='Descenso por gradiente')
         plt.plot([F(matrix, b1)]*iters, label='F(B), least squares')
 
         plt.plot([F2(matrix, b1,delta2)]*iters, label='F2(B), regularized least squares')
