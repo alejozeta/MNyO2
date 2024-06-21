@@ -21,14 +21,10 @@ def hess_f(matrix):
     return 2 * matrix.T @ matrix
 
 def F2(matrix, x, delta):
-    return F(matrix,x) + delta * F(matrix,x)*np.dot(x,x)
+    return F(matrix,x) + delta * np.linalg.norm(x)**2
 
 def grad_f2(matrix, x,delta):
     return 2 * matrix.T @ (matrix @ x - b) + 2 * delta * np.dot(x,x) * x
-
-def hess_f2(matrix,delta):
-    return hess_f(matrix) + 2 * delta * np.eye(matrix.shape[1])
-
 def calculate_alpha(matrix):
     """
     Alpha = 1/max(eigenvalues(Hessian))
@@ -69,65 +65,75 @@ def absolute_error(A,B):
     return abserr
         
 
-def find_B(X, Y, d):
+def find_x_asterisco(X, Y, d):
     A_d = pseudo_inverse(X, d)
-    B = np.dot(A_d, Y)
-    return B
+    x_asterisco = np.dot(A_d, Y)
+    return x_asterisco
+np.random.seed(12345)
+matrix = np.random.randn(n, d)
+alpha = calculate_alpha(matrix)
+x1, x1_values = gradiente_descendente(matrix, x0, iters, alpha)
+y1_values = [F(matrix, x) for x in x1_values]
+U, S, VT = np.linalg.svd(matrix, full_matrices=False)   
+x1_asterisco = find_x_asterisco(matrix, b, d)
+max_singular_value = np.max(np.linalg.svd(matrix, compute_uv=False))
+delta=1e-2*max_singular_value**2
+x2, x2_values = gradiente_descendente2(matrix, x0, iters, alpha,delta)
+y2_values = [F2(matrix, x, delta) for x in x2_values]
 
+plt.figsize=(10,10)
+plt.loglog(y2_values, label='$F_2(x)$, gradiente descendente, $\delta=10^{-2}\sigma_{max}^2$')
+plt.loglog([F2(matrix, x2, 1e-2*max_singular_value**2)] * iters, label='$F_2(x*)$, gradiente descendente, $\delta=10^{-2}\sigma_{max}^2$')
 
+plt.loglog(y1_values, label='$F(x)$, gradiente descendente')
+plt.loglog([F(matrix, x1)] * iters, label='$F(x*)$, gradiente descendente')
+plt.loglog([F(matrix, x1_asterisco)] * iters, label='$F(x*)$, SVD')
 
-def main1():
-    matrix = np.random.randn(n, d)
-    alpha = calculate_alpha(matrix)
-    x1, x1_values = gradiente_descendente(matrix, x0, iters, alpha)
-    print("After 1000 iters, F1(x*)=",F(matrix, x1))
-    max_singular_value = np.max(np.linalg.svd(matrix, compute_uv=False))
-    delta2_list = [1e-2 * max_singular_value**2, 1e-3 * max_singular_value**2,
-              1e-4 * max_singular_value**2, 1e-5 * max_singular_value**2]
-    for delta2 in delta2_list:
-        # print(np.max(np.linalg.svd(matrix, compute_uv=False)))
-        # print(delta2)
-        x2, x2_values = gradiente_descendente2(matrix, x0, iters, alpha,delta2)
-        print("After 1000 iters, F2(x*)=",F2(matrix, x2,delta2))
+plt.xlabel('Iteraciones')
+plt.ylabel('$F(x)$ y $F_2(x)$')
+# plt.title('GD vs GD* vs SVD')
+plt.legend(loc='center right')
+plt.show()
 
+delta2_list = [1e-2  , 1e-3 ,
+            1e-4 , 1e-5 ]
+for value in delta2_list:
+    delta = value*max_singular_value**2
+    x, x_values = gradiente_descendente2(matrix, x0, iters, alpha, delta)
+    y_values = [F2(matrix, x, delta) for x in x_values]
+    
+    label = f'$F_2(x)$, gradiente descendente, $\delta={value} '
+    label += f'* \sigma_{{max}}^2$'
+    plt.loglog(y_values, label=label)
+plt.xlabel('Iteraciones')
+plt.ylabel('$F_2(x)$')
+plt.title('GD*')
+plt.legend()
+plt.show()
 
-        b1 = find_B(matrix, b, 5)
-        print("B =", b1)
-        print(F(matrix, b1))
-        print("Absolute error =", absolute_error(x1,b1))
-        
+# x2_more_iters, x2_values_more_iters = gradiente_descendente2(matrix, x0, iters*1000, alpha, delta)
 
+error1 = abs(F(matrix, x1) - F(matrix, x1_asterisco)) / abs(F(matrix, x1_asterisco))
+error2 = abs(F2(matrix, x2, delta) - F2(matrix, x1_asterisco, delta)) / abs(F2(matrix, x1_asterisco, delta))
+print(f'Error en F(x1): {error1}')
+print(f'Error en F2(x2): {error2}')
+ranger = np.arange(d)
+plt.bar(ranger,x1, label='$x_1$', color='y')
+plt.bar(ranger,x1_asterisco, label='$x^*$')
 
-        y1_values = [F(matrix, x) for x in x1_values]
-        y2_values = [F2(matrix, x, delta2) for x in x2_values]
+plt.bar(ranger,x2, label='$x_2$', color='r')
+plt.xlabel('Dimensiones')
+plt.ylabel('Valor')
+plt.title('Comparación de $x^*$, $x_1$ y $x_2$')
+plt.legend()
+plt.show()
 
-
-        plt.figure(figsize=(10, 6))
-        plt.loglog(y2_values, label='Descenso por gradiente con regularización L2')
-        plt.loglog(y1_values, label='Descenso por gradiente')
-        plt.plot([F(matrix, b1)]*iters, label='F(B), least squares')
-
-        plt.plot([F2(matrix, b1,delta2)]*iters, label='F2(B), regularized least squares')
-
-        plt.plot([F2(x2, b1,delta2)]*iters, label='F2(x2), regularized least squares')
-        plt.yscale("log")
-        plt.xlabel('Iteraciones')
-        plt.ylabel('Valores de x')
-        plt.title('Evolución de los valores de x a lo largo de las iteraciones')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
-
-        y3_values = [F(matrix, x) for x in x2_values]
-        y4_values = [F2(matrix, x, delta2) for x in x1_values]
-        plt.loglog(y3_values, label='Descenso por gradiente')
-        plt.loglog(y4_values, label='Descenso por gradiente con regularización L2')
-        plt.xlabel('Iteraciones')
-        plt.ylabel('Valores de x')
-        plt.title('Evolución de los valores de x a lo largo de las iteraciones')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
-
-if __name__ == "__main__":
-    main1()
+x1_errores = [abs(F(matrix, x1_asterisco) - F(matrix, x)) for x in x1_values]
+x2_errores = [abs(F2(matrix, x1_asterisco, delta) - F2(matrix, x, delta)) for x in x2_values]
+plt.loglog(x1_errores, label='$|F_1(x^*) - F_1(x_1)|$')
+plt.loglog(x2_errores, label='$|F_2(x^*) - F_2(x_2)|$')
+plt.xlabel('Iteraciones')
+plt.ylabel('Error')
+plt.title('Error absoluto de la aproximación a lo largo de las iteraciones')
+plt.legend()
+plt.show()
